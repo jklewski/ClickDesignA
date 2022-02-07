@@ -70,12 +70,12 @@
             imdataOriginal = Uint8ClampedArray.from(imdata.data); //clone original imdata
             var imgdata = ctx.getImageData(0,0,10,10)
             }
-            img.src = "Wood_Texture_knot.png"
-
+            //img.src = "./Wood_Texture_knot.png"
+            img.src = "./WallTexture.png"
             //get dosemap data
             const canvasDose = document.getElementById("dosemap");
             const ctxDose = canvasDose.getContext("2d");
-            var grdDose = ctxDose.createLinearGradient(0, 0, 0, 50)
+            var grdDose = ctxDose.createLinearGradient(0, 0, 0, 100)
             grdDose.addColorStop(0, "#000000");
             grdDose.addColorStop(1, "white");
             ctxDose.fillStyle = grdDose;

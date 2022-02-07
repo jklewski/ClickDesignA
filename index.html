@@ -1,69 +1,91 @@
 <!doctype html>
 <html lang="en">
-<title> Wood Aesthetics </title>
 
 <head>
     <meta charset="UTF-8">
- 
-
-
-
+    <script> //load and interpolate material
+        var colorData = { "R": [251, 255, 214, 255, 192, 240, 172, 228, 154, 218, 138, 209, 123, 202, 110, 197, 99, 193, 90, 192, 82, 192, 77, 194, 72, 197], "G": [221, 253, 162, 218, 151, 211, 140, 205, 130, 200, 120, 196, 111, 193, 102, 190, 93, 188, 85, 187, 77, 186, 70, 186, 63, 187], "B": [176, 224, 112, 194, 112, 193, 111, 192, 109, 191, 106, 190, 103, 189, 98, 188, 93, 187, 87, 186, 79, 184, 71, 183, 62, 181], "Name": "Spruce" }
+        var colorNew = { "R": [], "G": [], "B": [] }
+        for (let j = 0; j < 12; j++) {
+            var lwR = colorData.R[(j * 2)]
+            var ewR = colorData.R[(1 + j * 2)]
+            var colorTemp = [];
+            for (let i = 0; i < 256; i++) {
+                var diff = (ewR - lwR) / 255
+                colorTemp[i] = lwR + diff * i
+            }
+            colorNew.R.push(...colorTemp)
+        }
+        for (let j = 0; j < 12; j++) {
+            var lwR = colorData.G[(j * 2)]
+            var ewR = colorData.G[(1 + j * 2)]
+            var colorTemp = [];
+            for (let i = 0; i < 256; i++) {
+                var diff = (ewR - lwR) / 255
+                colorTemp[i] = lwR + diff * i
+            }
+            colorNew.G.push(...colorTemp)
+        }
+        for (let j = 0; j < 12; j++) {
+            var lwR = colorData.B[(j * 2)]
+            var ewR = colorData.B[(1 + j * 2)]
+            var colorTemp = [];
+            for (let i = 0; i < 256; i++) {
+                var diff = (ewR - lwR) / 255
+                colorTemp[i] = lwR + diff * i
+            }
+            colorNew.B.push(...colorTemp)
+        }
+        var wclr = colorNew;
+    </script>
 
 </head>
 
 <body>
-<h1> whatevs </h1>
-    <canvas id="big" height="700px" style="border: 10px solid black;"></canvas>
+    <canvas id="woodTexture" height="200px" width="400px" style="border: 10px solid black;"></canvas>
+    <canvas id="dosemap" height="200px" width="400px" style="border: 10px solid black;"></canvas>
 
-    <script> //load and interpolate material
-        var colorData = {"R":[251,255,214,255,192,240,172,228,154,218,138,209,123,202,110,197,99,193,90,192,82,192,77,194,72,197],"G":[221,253,162,218,151,211,140,205,130,200,120,196,111,193,102,190,93,188,85,187,77,186,70,186,63,187],"B":[176,224,112,194,112,193,111,192,109,191,106,190,103,189,98,188,93,187,87,186,79,184,71,183,62,181],"Name":"Spruce"}
-        var colorNew = {"R":[],"G":[],"B":[]}
-        for (let j = 0; j<12;j++) {
-        var lwR = colorData.R[(j*2)]
-        var ewR = colorData.R[(1+j*2)]
-        var colorTemp = [];
-        for (let i = 0;i<256;i++) {
-            var diff = (ewR-lwR)/255
-            colorTemp[i] = lwR+diff*i
-        }
-        colorNew.R.push(...colorTemp) 
-        }
-        for (let j = 0; j<12;j++) {
-        var lwR = colorData.G[(j*2)]
-        var ewR = colorData.G[(1+j*2)]
-        var colorTemp = [];
-        for (let i = 0;i<256;i++) {
-            var diff = (ewR-lwR)/255
-            colorTemp[i] = lwR+diff*i
-        }
-        colorNew.G.push(...colorTemp) 
-        }
-        for (let j = 0; j<12;j++) {
-        var lwR = colorData.B[(j*2)]
-        var ewR = colorData.B[(1+j*2)]
-        var colorTemp = [];
-        for (let i = 0;i<256;i++) {
-            var diff = (ewR-lwR)/255
-            colorTemp[i] = lwR+diff*i
-        }
-        colorNew.B.push(...colorTemp) 
-        }
-    </script>
-<!--
-    <script>
-    var img = new Image()
-    img.onload=function(){
-    const canvas = document.getElementById("big");
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img,0,0,canvas.width,canvas.height)   
-    ctx.getImageData(0,0,10,10)
-    }
+    <div class="slidecontainer">
+        <p>Default range slider:</p>
+        <input type="range" min="0" max="100" value="0" onchange="updateColor(this.value)">
+        <script>
+            //get morphological image data
+            const canvas = document.getElementById("woodTexture");
+            const ctx = canvas.getContext("2d");
+            var grd = ctx.createLinearGradient(0, 0, 400, 200)
+            grd.addColorStop(0, "#000000");
+            grd.addColorStop(1, "white");
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 400, 200);
+            imdata = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            imdataOriginal = Uint8ClampedArray.from(imdata.data); //clone original imdata
+            //get dosemap data
+            const canvasDose = document.getElementById("dosemap");
+            const ctxDose = canvasDose.getContext("2d");
+            var grdDose = ctxDose.createLinearGradient(0, 0, 0, 50)
+            grdDose.addColorStop(0, "#000000");
+            grdDose.addColorStop(1, "white");
+            ctxDose.fillStyle = grdDose;
+            ctxDose.fillRect(0, 0, 400, 200);
+            imdataDose = ctxDose.getImageData(0, 0, canvasDose.width, canvasDose.height)
+            imdataOriginalDose = Uint8ClampedArray.from(imdataDose.data); //clone original imdata
 
-img.src = "Wood_Texture_knot.png"
--->
+            //update color, interpolate between full "months"
+            function updateColor(e) {
+                var valueSlider = parseInt(e) / 10;
 
-</script>
-
+                for (let i = 0; i < imdata.data.length; i += 4) {
+                    value = (imdataOriginalDose[i]/256)*valueSlider
+                    let idHigh = imdataOriginal[i] + 256 * Math.ceil(value)
+                    let idLow = imdataOriginal[i] + 256 * Math.floor(value)
+                    imdata.data[i] = wclr.R[idLow] + (wclr.R[idHigh] - wclr.R[idLow]) * (value - Math.floor(value));
+                    imdata.data[i + 1] = wclr.G[idLow] + (wclr.G[idHigh] - wclr.G[idLow]) * (value - Math.floor(value));
+                    imdata.data[i + 2] = wclr.B[idLow] + (wclr.B[idHigh] - wclr.B[idLow]) * (value - Math.floor(value));
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.putImageData(imdata, 0, 0)
+            }
+        </script>
 </body>
 
 </html>
